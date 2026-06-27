@@ -20,15 +20,20 @@ jobs:
           mkdir -p bucket
           curl -s https://raw.githubusercontent.com/ScoopInstaller/Main/master/bucket/vulkan.json -o bucket/vulkan-raw.json
 
-          jq '.installer.args = (.installer.args | .[0:-1] + [
-            "com.lunarg.vulkan.volk",
-            "com.lunarg.vulkan.debug",
-            "com.lunarg.vulkan.vma",
-            "com.lunarg.vulkan.sdl2",
-            "com.lunarg.vulkan.glm",
-            "com.lunarg.vulkan.arm64",
-            "copy_only=1"
-          ])' bucket/vulkan-raw.json > bucket/vulkan.json
+          jq '
+            .installer.args = (.installer.args | .[0:-1] + [
+              "com.lunarg.vulkan.volk",
+              "com.lunarg.vulkan.debug",
+              "com.lunarg.vulkan.vma",
+              "com.lunarg.vulkan.sdl2",
+              "com.lunarg.vulkan.glm",
+              "com.lunarg.vulkan.arm64",
+              "copy_only=1"
+            ]) |
+            .post_install = (.post_install | map(
+              gsub("\\.Value\\.Contains\\(\"Vulkan SDK\"\\)"; ".Value -like \"*Vulkan SDK*\"")
+            ))
+          ' bucket/vulkan-raw.json > bucket/vulkan.json
 
           rm bucket/vulkan-raw.json
 
