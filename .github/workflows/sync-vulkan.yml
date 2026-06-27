@@ -24,6 +24,9 @@ jobs:
             "com.lunarg.vulkan.volk",
             "com.lunarg.vulkan.debug",
             "com.lunarg.vulkan.vma",
+            "com.lunarg.vulkan.sdl2",
+            "com.lunarg.vulkan.glm",
+            "com.lunarg.vulkan.arm64",
             "copy_only=1"
           ])' bucket/vulkan-raw.json > bucket/vulkan.json
 

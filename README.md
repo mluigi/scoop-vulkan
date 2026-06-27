@@ -4,7 +4,10 @@ Custom [Scoop](https://scoop.sh) bucket that extends the official Vulkan SDK man
 
 - **volk** — meta-loader for Vulkan
 - **VMA** — Vulkan Memory Allocator
-- **Debug libraries** — validation layer debug symbols
+- **Debug libraries** — debuggable shader API libraries
+- **SDL2** — SDL2 library
+- **GLM** — 3D math library headers
+- **ARM64 cross-compile libs** — ARM64 binaries for cross-compiling from x86_64
 
 The manifest is automatically synced from the official [ScoopInstaller/Main](https://github.com/ScoopInstaller/Main) bucket daily and patched to include these extras.
 
