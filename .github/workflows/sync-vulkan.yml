@@ -1,0 +1,43 @@
+name: Sync Custom Vulkan Manifest
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch and Patch Vulkan Manifest
+        run: |
+          mkdir -p bucket
+          curl -s https://raw.githubusercontent.com/ScoopInstaller/Main/master/bucket/vulkan.json -o bucket/vulkan-raw.json
+
+          jq '.installer.args = (.installer.args | .[0:-1] + [
+            "com.lunarg.vulkan.volk",
+            "com.lunarg.vulkan.debug",
+            "com.lunarg.vulkan.vma",
+            "copy_only=1"
+          ])' bucket/vulkan-raw.json > bucket/vulkan.json
+
+          rm bucket/vulkan-raw.json
+
+      - name: Commit and Push Changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add bucket/vulkan.json
+
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto-update custom Vulkan manifest"
+            git push
+          else
+            echo "Upstream is unchanged. Nothing to commit."
+          fi
