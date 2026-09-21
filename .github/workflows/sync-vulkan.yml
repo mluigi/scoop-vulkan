@@ -1,4 +1,4 @@
-name: Sync Custom Vulkan Manifest
+name: Sync Custom Vulkan Manifest and Scripts
 
 on:
   schedule:
@@ -31,20 +31,26 @@ jobs:
               "copy_only=1"
             ]) |
             .post_install = (.post_install | map(
-              gsub("\\.Value\\.Contains\\(\"Vulkan SDK\"\\)"; ".Value -like \"*Vulkan SDK*\"")
+              gsub("\\.Value\\.Contains\\(\"Vulkan SDK\"\\)"; ".Value -like \"*Vulkan SDK*\"") |
+              gsub("\\$bucketsdir\\\\main\\\\scripts"; "$bucketsdir\\$bucket\\scripts")
             ))
           ' bucket/vulkan-raw.json > bucket/vulkan.json
 
           rm bucket/vulkan-raw.json
 
+      - name: Fetch Vulkan Scripts
+        run: |
+          mkdir -p scripts/vulkan
+          curl -s https://raw.githubusercontent.com/ScoopInstaller/Main/master/scripts/vulkan/install-vk-layers.ps1 -o scripts/vulkan/install-vk-layers.ps1
+
       - name: Commit and Push Changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add bucket/vulkan.json
+          git add bucket/vulkan.json scripts/vulkan/install-vk-layers.ps1
 
           if ! git diff --staged --quiet; then
-            git commit -m "Auto-update custom Vulkan manifest"
+            git commit -m "Auto-update custom Vulkan manifest and scripts"
             git push
           else
             echo "Upstream is unchanged. Nothing to commit."
